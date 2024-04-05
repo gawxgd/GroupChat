@@ -6,6 +6,7 @@ namespace GroupChat
     public partial class Form1 : Form
     {
         private int messageCount = 0;
+        bool connection = false;
         public Form1()
         {
             InitializeComponent();
@@ -13,6 +14,7 @@ namespace GroupChat
             tableLayoutPanel2.Controls.Clear();
             tableLayoutPanel2.AutoScroll = true;
             tableLayoutPanel2.HorizontalScroll.Visible = false;
+            disconnectToolStripMenuItem.Enabled = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -50,6 +52,18 @@ namespace GroupChat
             {
                 createBubble();
             }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //disconnect
+            Application.Exit();
+        }
+
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            connectionDialogBox connectionBox = new connectionDialogBox();
+            DialogResult res = connectionBox.ShowDialog();
         }
     }
 }
