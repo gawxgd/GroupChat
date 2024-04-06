@@ -56,6 +56,7 @@ namespace GroupChat
             Messages.Authorization Auth = new Messages.Authorization(textBox3.Text, textBox4.Text);
             string authmes = SerialOps.SerializeToJson(Auth);
             ((TextWriter)client.Writer).WriteLine(authmes);
+            progressBar1.Value = 50;
             ((TextWriter)client.Writer).Flush();
             progressBar1.Value = 75;
             string recived = ((TextReader)client.Reader).ReadLine();
@@ -63,9 +64,14 @@ namespace GroupChat
             {
                 progressBar1.Value = 0;
                 MessageBox.Show("authorization failed");
+                DialogResult = DialogResult.No;
+                Close();
                 return false;
             }
+            progressBar1.Value = 100;
             MessageBox.Show("authorized");
+            DialogResult = DialogResult.Yes;
+            Close();
             return true;
         }
         private void connectionDialogBox_Load(object sender, EventArgs e)

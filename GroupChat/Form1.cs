@@ -17,12 +17,7 @@ namespace GroupChat
             tableLayoutPanel2.HorizontalScroll.Visible = false;
             disconnectToolStripMenuItem.Enabled = false;
         }
-        public void ServerConnection()
-        {
-            if (connection == true)
-                return;
-
-        }
+        
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -71,6 +66,12 @@ namespace GroupChat
         {
             connectionDialogBox connectionBox = new connectionDialogBox();
             DialogResult res = connectionBox.ShowDialog();
+            if(res == DialogResult.Yes)
+            {
+                disconnectToolStripMenuItem.Enabled = true;
+                connectToolStripMenuItem.Enabled = false;
+
+            }
         }
     }
 }
