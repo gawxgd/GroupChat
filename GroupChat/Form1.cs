@@ -1,3 +1,4 @@
+using System.Net.Quic;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -15,6 +16,12 @@ namespace GroupChat
             tableLayoutPanel2.AutoScroll = true;
             tableLayoutPanel2.HorizontalScroll.Visible = false;
             disconnectToolStripMenuItem.Enabled = false;
+        }
+        public void ServerConnection()
+        {
+            if (connection == true)
+                return;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
