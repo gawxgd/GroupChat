@@ -61,7 +61,11 @@ namespace GroupChat
             tableLayoutPanel2.ScrollControlIntoView(b);
             messageCount++;
         }
-
+        public void createPiwo()
+        {
+            piwo PIWO = new piwo(this);
+            tableLayoutPanel2.Controls.Add(PIWO, 0, messageCount++);
+        }
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -130,9 +134,14 @@ namespace GroupChat
 
             }
         }
-        private async Task AsyncOlgierd(Messages.Message message, ConnectionClient client)
+        public async Task AsyncOlgierd(Messages.Message message, ConnectionClient client)
         {
             await OlgierdTask.ContinueWith((Action<Task>)(task => SendMesagePackage(message, client)));
+        }
+        public void IdziemyNaPiwo()
+        {
+            AsyncOlgierd(new Messages.Message("PIWO", "dobra idziemy", DateTime.Now),ConnectionObject.cli);
+            createBubble(nick,"dobra idziemy",DateTime.Now);
         }
     }
 }
