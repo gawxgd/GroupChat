@@ -105,8 +105,13 @@ namespace GroupChat
         {
             try
             {
-                while (!token.IsCancellationRequested && client.Connected)
+                while (client.Connected)
                 {
+                    if(token.IsCancellationRequested) 
+                    {
+                        client.TcpClient.Close();
+                        form.Invoke(new Action(() => { form.disconnectToolStripMenuItem.Enabled = false; form.connectToolStripMenuItem.Enabled = true; }));
+                    }
                     string RecivedMessage = ((TextReader)client.Reader).ReadLine();
                     if(!(RecivedMessage is null)) 
                     {

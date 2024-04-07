@@ -109,6 +109,7 @@ namespace GroupChat
             connectLabel.Text = "Disconnected";
             connectToolStripMenuItem.Enabled = true;
             disconnectToolStripMenuItem.Enabled = false;
+            connection = false;
 
 
             // stop thread

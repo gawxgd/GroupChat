@@ -153,8 +153,8 @@
         private TableLayoutPanel tableLayoutPanel2;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem connectToolStripMenuItem;
-        private ToolStripMenuItem disconnectToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
+        public ToolStripMenuItem connectToolStripMenuItem;
+        public ToolStripMenuItem disconnectToolStripMenuItem;
     }
 }
