@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace GroupChat
 {
@@ -13,6 +14,8 @@ namespace GroupChat
         Form1 form;
         connectionDialogBox connectbox;
         CancellationToken token;
+        public ConnectionClient cli;
+        public string userName;
         public Connection(Form1 form, connectionDialogBox connectbox,CancellationToken token) 
         {
             this.form = form;
@@ -29,6 +32,7 @@ namespace GroupChat
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to resolve address");
+                connectbox.DialogResult = DialogResult.No;
                 return false;
             }
             Int32 port;
@@ -39,20 +43,34 @@ namespace GroupChat
             catch (Exception ex)
             {
                 MessageBox.Show("Failed to parse port number");
+                connectbox.DialogResult = DialogResult.No;
                 return false;
             }
             IPAddress ip = entry.AddressList[0];
             TcpClient tcpClient = new TcpClient();
-            connectbox.ChangeProgressbar(25);
-            Task ConnectionTask = tcpClient.ConnectAsync(ip, port);
-            connectbox.DissableConnecrtionButton(true);
-            ConnectionClient client = new ConnectionClient(tcpClient);
+            ConnectionClient client;
+            try
+            {
+                connectbox.ChangeProgressbar(25);
+                Task ConnectionTask = tcpClient.ConnectAsync(ip, port);
+                connectbox.DissableConnecrtionButton(true);
+                client = new ConnectionClient(tcpClient);
+            }
+            catch(Exception ex)
+            {
+                connectbox.ChangeProgressbar(0);
+                MessageBox.Show("server not started");
+                connectbox.DialogResult = DialogResult.No;
+                return false;
+            }
+            
             try
             {
                 return AuthorizeClient(client);
             }
             catch(Exception ex) 
             {
+                connectbox.DialogResult = DialogResult.No;
                 return false;
             }
 
@@ -78,6 +96,8 @@ namespace GroupChat
             MessageBox.Show("authorized");
             connectbox.DialogResult = DialogResult.Yes;
             //connectbox.CloseBox(true);
+            cli = client;
+            userName = connectbox.textBox3.Text;
             MessageOps(client);
             return true;
         }
@@ -85,7 +105,7 @@ namespace GroupChat
         {
             try
             {
-                while (!token.IsCancellationRequested)
+                while (!token.IsCancellationRequested && client.Connected)
                 {
                     string RecivedMessage = ((TextReader)client.Reader).ReadLine();
                     if(!(RecivedMessage is null)) 

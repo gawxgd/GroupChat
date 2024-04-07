@@ -6,6 +6,8 @@ namespace GroupChat
 {
     public partial class Form1 : Form
     {
+        Task OlgierdTask;
+
         private int messageCount = 0;
         bool connection = false;
         Task ConnectionTask;
@@ -22,8 +24,8 @@ namespace GroupChat
             tableLayoutPanel2.AutoScroll = true;
             tableLayoutPanel2.HorizontalScroll.Visible = false;
             disconnectToolStripMenuItem.Enabled = false;
-            cancellationTokenSource = new CancellationTokenSource();
-            cancellationToken = cancellationTokenSource.Token;
+          
+            OlgierdTask = Task.Factory.StartNew(() => { });
         }
         public void CreateConnectionTask()
         {
@@ -34,6 +36,11 @@ namespace GroupChat
         private void button1_Click(object sender, EventArgs e)
         {
             createBubble(nick,textBox1.Text,DateTime.Now);
+            if (connection)
+            {
+                Messages.Message mes = new Messages.Message(ConnectionObject.userName, textBox1.Text, DateTime.Now);
+                AsyncOlgierd(mes, ConnectionObject.cli);
+            }
             textBox1.Clear();
         }
         public void createBubble(string author,string text, DateTime time)
@@ -59,8 +66,7 @@ namespace GroupChat
         {
             if (e.KeyCode == Keys.Enter)
             {
-                createBubble(nick, textBox1.Text, DateTime.Now);
-                textBox1.Clear();
+                button1_Click(sender, e);
 
             }
         }
@@ -76,6 +82,8 @@ namespace GroupChat
         {
 
             connectionDialogBox connectionBox = new connectionDialogBox(this);
+            cancellationTokenSource = new CancellationTokenSource();
+            cancellationToken = cancellationTokenSource.Token;
             ConnectionObject = new Connection(this, connectionBox,cancellationToken);
             DialogResult res = connectionBox.ShowDialog();
             if (res == DialogResult.Yes)
@@ -88,6 +96,7 @@ namespace GroupChat
                 connectLabel.TextAlign = ContentAlignment.MiddleCenter;
                 connectLabel.Dock = DockStyle.Top;
                 tableLayoutPanel2.Controls.Add(connectLabel, 0, 0);
+                connection = true;
 
 
             }
@@ -95,9 +104,34 @@ namespace GroupChat
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AsyncOlgierd(new Messages.Message(ConnectionObject.userName, "Disconnected", DateTime.Now),ConnectionObject.cli);
             cancellationTokenSource.Cancel();
             connectLabel.Text = "Disconnected";
+            connectToolStripMenuItem.Enabled = true;
+            disconnectToolStripMenuItem.Enabled = false;
+
+
             // stop thread
+        }
+        private void SendMesagePackage(Messages.Message message, ConnectionClient client)
+        {
+            try
+            {
+                string og_olgierd = SerialOps.SerializeToJson(message);
+                ((TextWriter)client.Writer).WriteLine(og_olgierd);
+                ((TextWriter)client.Writer).Flush();
+            }
+            catch (Exception ex)
+            {
+
+
+                //logBox.AppendText(ex.Message);
+
+            }
+        }
+        private async Task AsyncOlgierd(Messages.Message message, ConnectionClient client)
+        {
+            await OlgierdTask.ContinueWith((Action<Task>)(task => SendMesagePackage(message, client)));
         }
     }
 }
