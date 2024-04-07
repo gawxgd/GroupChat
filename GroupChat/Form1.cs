@@ -8,6 +8,12 @@ namespace GroupChat
     {
         private int messageCount = 0;
         bool connection = false;
+        Task ConnectionTask;
+        Connection ConnectionObject;
+        Label connectLabel;
+        CancellationTokenSource cancellationTokenSource;
+        CancellationToken cancellationToken;
+        string nick = "You";
         public Form1()
         {
             InitializeComponent();
@@ -16,22 +22,24 @@ namespace GroupChat
             tableLayoutPanel2.AutoScroll = true;
             tableLayoutPanel2.HorizontalScroll.Visible = false;
             disconnectToolStripMenuItem.Enabled = false;
+            cancellationTokenSource = new CancellationTokenSource();
+            cancellationToken = cancellationTokenSource.Token;
         }
-        
+        public void CreateConnectionTask()
+        {
+            ConnectionTask = new Task(() => ConnectionObject.ConnectionRun());
+            ConnectionTask.Start();
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            createBubble();
+            createBubble(nick,textBox1.Text,DateTime.Now);
+            textBox1.Clear();
         }
-        private void createBubble()
+        public void createBubble(string author,string text, DateTime time)
         {
-            string author = "not you";
-            if (messageCount % 2 == 0)
-            {
-                author = "you";
-            }
-            bubble b = new bubble(author, textBox1.Text, DateTime.Now);
-            if (messageCount % 2 == 0)
+            bubble b = new bubble(author,text, time);
+            if (author == nick)
             {
                 b.Margin = new Padding(50, 0, 0, 0);
                 b.Dock = DockStyle.Right;
@@ -45,33 +53,51 @@ namespace GroupChat
             tableLayoutPanel2.Controls.Add(b, 0, messageCount);
             tableLayoutPanel2.ScrollControlIntoView(b);
             messageCount++;
-            textBox1.Clear();
         }
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                createBubble();
+                createBubble(nick, textBox1.Text, DateTime.Now);
+                textBox1.Clear();
+
             }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //disconnect
+
             Application.Exit();
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectionDialogBox connectionBox = new connectionDialogBox();
+
+            connectionDialogBox connectionBox = new connectionDialogBox(this);
+            ConnectionObject = new Connection(this, connectionBox,cancellationToken);
             DialogResult res = connectionBox.ShowDialog();
-            if(res == DialogResult.Yes)
+            if (res == DialogResult.Yes)
             {
                 disconnectToolStripMenuItem.Enabled = true;
                 connectToolStripMenuItem.Enabled = false;
+                connectLabel = new Label();
+                connectLabel.Text = "Connected";
+                connectLabel.ForeColor = System.Drawing.Color.DarkGray;
+                connectLabel.TextAlign = ContentAlignment.MiddleCenter;
+                connectLabel.Dock = DockStyle.Top;
+                tableLayoutPanel2.Controls.Add(connectLabel, 0, 0);
+
 
             }
+        }
+
+        private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cancellationTokenSource.Cancel();
+            connectLabel.Text = "Disconnected";
+            // stop thread
         }
     }
 }

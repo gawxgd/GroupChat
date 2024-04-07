@@ -14,66 +14,14 @@ namespace GroupChat
 {
     public partial class connectionDialogBox : Form
     {
-        public connectionDialogBox()
+        Form1 mainForm;
+        public connectionDialogBox(Form1 mainForm)
         {
             InitializeComponent();
             progressBar1.Value = 0;
+            this.mainForm = mainForm;
         }
-        private bool Connection()
-        {
-            IPHostEntry entry;
-            try
-            {
-                entry = Dns.GetHostEntry(textBox1.Text);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to resolve address");
-                return false;
-            }
-            Int32 port;
-            try
-            {
-                port = Int32.Parse(textBox2.Text);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to parse port number");
-                return false;
-            }
-            IPAddress ip = entry.AddressList[0];
-            TcpClient tcpClient = new TcpClient();
-            progressBar1.Value = 25;
-            Task ConnectionTask = tcpClient.ConnectAsync(ip, port);
-            button1.Enabled = false;
-            ConnectionClient client = new ConnectionClient(tcpClient);
-            return AuthorizeClient(client);
-
-
-        }
-        private bool AuthorizeClient(ConnectionClient client)
-        {
-            Messages.Authorization Auth = new Messages.Authorization(textBox3.Text, textBox4.Text);
-            string authmes = SerialOps.SerializeToJson(Auth);
-            ((TextWriter)client.Writer).WriteLine(authmes);
-            progressBar1.Value = 50;
-            ((TextWriter)client.Writer).Flush();
-            progressBar1.Value = 75;
-            string recived = ((TextReader)client.Reader).ReadLine();
-            if (recived is null)
-            {
-                progressBar1.Value = 0;
-                MessageBox.Show("authorization failed");
-                DialogResult = DialogResult.No;
-                Close();
-                return false;
-            }
-            progressBar1.Value = 100;
-            MessageBox.Show("authorized");
-            DialogResult = DialogResult.Yes;
-            Close();
-            return true;
-        }
+      
         private void connectionDialogBox_Load(object sender, EventArgs e)
         {
 
@@ -96,7 +44,35 @@ namespace GroupChat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Connection();
+            mainForm.CreateConnectionTask();
+        }
+        public void ChangeProgressbar(int value)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<int>(ChangeProgressbar), new object[] { value });
+                return;
+            }
+            progressBar1.Value = value;
+        }
+        public void DissableConnecrtionButton(bool value)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<bool>(DissableConnecrtionButton), new object[] { value });
+                return;
+            }
+            button1.Enabled = !value;
+        }
+        public void CloseBox(bool value)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<bool>(CloseBox), new object[] { value });
+                return;
+            }
+            if (value == true)
+                Close();
         }
     }
 }
