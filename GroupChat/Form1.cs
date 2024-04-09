@@ -12,7 +12,7 @@ namespace GroupChat
         bool connection = false;
         Task ConnectionTask;
         Connection ConnectionObject;
-        Label connectLabel;
+        public Label connectLabel;
         CancellationTokenSource cancellationTokenSource;
         CancellationToken cancellationToken;
         string nick = "You";
@@ -24,7 +24,13 @@ namespace GroupChat
             tableLayoutPanel2.AutoScroll = true;
             tableLayoutPanel2.HorizontalScroll.Visible = false;
             disconnectToolStripMenuItem.Enabled = false;
-          
+            connectLabel = new Label();
+            connectLabel.Text = "";
+            connectLabel.ForeColor = System.Drawing.Color.DarkGray;
+            connectLabel.TextAlign = ContentAlignment.MiddleCenter;
+            connectLabel.Dock = DockStyle.Top;
+       
+            tableLayoutPanel2.Controls.Add(connectLabel, 0, 0);
             OlgierdTask = Task.Factory.StartNew(() => { });
         }
         public void CreateConnectionTask()
@@ -78,7 +84,7 @@ namespace GroupChat
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //disconnect
-
+            disconnectToolStripMenuItem_Click(sender, e);
             Application.Exit();
         }
 
@@ -94,19 +100,14 @@ namespace GroupChat
             {
                 disconnectToolStripMenuItem.Enabled = true;
                 connectToolStripMenuItem.Enabled = false;
-                connectLabel = new Label();
                 connectLabel.Text = "Connected";
-                connectLabel.ForeColor = System.Drawing.Color.DarkGray;
-                connectLabel.TextAlign = ContentAlignment.MiddleCenter;
-                connectLabel.Dock = DockStyle.Top;
-                tableLayoutPanel2.Controls.Add(connectLabel, 0, 0);
                 connection = true;
 
 
             }
         }
 
-        private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        public void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AsyncOlgierd(new Messages.Message(ConnectionObject.userName, "Disconnected", DateTime.Now),ConnectionObject.cli);
             cancellationTokenSource.Cancel();

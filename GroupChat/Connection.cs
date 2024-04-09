@@ -113,15 +113,23 @@ namespace GroupChat
                         form.Invoke(new Action(() => { form.disconnectToolStripMenuItem.Enabled = false; form.connectToolStripMenuItem.Enabled = true; }));
                     }
                     string RecivedMessage = ((TextReader)client.Reader).ReadLine();
-                   
-                    if(!(RecivedMessage is null)) 
+
+                    if (!(RecivedMessage is null))
                     {
                         Messages.Message recivedOG = SerialOps.DeserializeFromJsonMes(RecivedMessage);
+                        if (recivedOG.Text == "disconnected")
+                        {
+                            form.Invoke(new Action(() => form.connectLabel.Text = "Disconnected"));
+                            client.TcpClient.Close();
+                            form.Invoke(new Action(() => { form.disconnectToolStripMenuItem.Enabled = false; form.connectToolStripMenuItem.Enabled = true; }));
+                            break;
+                        }
                         form.Invoke((Action)(() => form.createBubble(recivedOG.Sender, recivedOG.Text, recivedOG.Time)));
                         if (recivedOG.Text == "PIWO")
                         {
                             form.Invoke(new Action(() => form.createPiwo()));
                         }
+                      
                     }
                 }
             }

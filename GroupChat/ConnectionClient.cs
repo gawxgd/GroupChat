@@ -8,16 +8,7 @@ using System.Threading.Tasks;
 namespace GroupChat
 {
     public class ConnectionClient
-    {
-        public static long id;
-        public long Id { get; }
-        public string Name { get; set; } = "Unauthorized";
-        public TcpClient TcpClient { get; }
-        public bool Connected => this.TcpClient.Connected;
-        public NetworkStream NetworkStream { get; }
-        public StreamReader Reader { get; }
-        public StreamWriter Writer { get; }
-        public CancellationTokenSource Cancellation { get; } = new CancellationTokenSource();
+    { 
         public ConnectionClient(TcpClient tcpClient)
         {
             this.Id = Interlocked.Increment(ref ConnectionClient.id);
@@ -26,5 +17,14 @@ namespace GroupChat
             this.Reader = new StreamReader((Stream)this.NetworkStream);
             this.Writer = new StreamWriter((Stream)this.NetworkStream);
         }
+        public static long id;
+        public long Id;
+        public string Name = "Unauthorized";
+        public TcpClient TcpClient;
+        public bool Connected => this.TcpClient.Connected;
+        public NetworkStream NetworkStream;
+        public StreamReader Reader;
+        public StreamWriter Writer;
+        public CancellationTokenSource Cancellation = new CancellationTokenSource();
     }
 }
